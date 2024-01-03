@@ -8,7 +8,7 @@ Mini Perf is a small Linux C/C++ program performance measurement tool. It can be
 
 - [x] Basic functions
 - [x] Export to CSV
-- [ ] Micro-benchmark
+- [x] Micro-benchmark
 - [ ] Mini flame graph
 
 ## Supported Metrics
@@ -67,6 +67,8 @@ Mini Perf is a small Linux C/C++ program performance measurement tool. It can be
 
 ## How to Use
 
+### Mini Perf
+
 ```cpp
 #include "mini_perf.hpp"
 
@@ -116,8 +118,28 @@ Cache References: 22050
 PerfReportInRow(perf, "Report test2", true, true, "./perf.csv");
 ```
 
+### Micro-Benchmark
+
+Micro-benchmark will execute the code between `MicroBenchmarkMain` and `MicroBenchmarkEnd` enough times(less than `max_running_time`) and output the average result.
+
+```cpp
+#include "mini_perf.hpp"
+
+// MicroBenchmarkInit(perf_name, mini_metrics, perf_metrics, max_running_time), note that the unit of the 'max_running_time' is second.
+MicroBenchmarkInit("Micro Test", mini_metrics, perf_metrics, 5)
+    // Initialization
+    std::array<int, 100000> arr{};
+MicroBenchmarkMain
+    // Main part to be measured 
+    for (int i = 0; i < 100000; ++i) {
+        arr[i] = i;
+    }
+// MicroBenchmarkEnd(report_name, report_file_path)
+MicroBenchmarkEnd("Test report", "/home/hoi/ClionProjects/cppTest/perf.log")
+```
+
 ## Notes
 
 * Mini Perf counts the average metrics of all intervals. If you want to measure the metrics for each interval separately, call `reset()` before the next `start()`.
-* Too short interval might cause exception.
+* Considering the running of the instance itself, we suggest that the computation between `start()` and `stop` or in the micro-benchmark should be complex enough. Or you can decrease the number of metrics.
 * Use one instance in several threads will produce invalid data.

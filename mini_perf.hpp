@@ -5,6 +5,7 @@
 #include <chrono>
 #include <fstream>
 #include <map>
+#include <filesystem>
 #include "linux-perf-events.h"
 #include "mini_perf.hpp"
 #include "mini_perf_macro.hpp"
@@ -47,14 +48,6 @@ struct MiniPerf {
 
     void stop();
 
-    void add_custom_metric(const std::string &metric_name, const std::string &metric_value) {
-        custom_metrics[metric_name] = metric_value;
-    }
-
-    void remove_custom_metric(const std::string &metric_name) {
-        custom_metrics.erase(metric_name);
-    }
-
     void reset();
 
     void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
@@ -63,6 +56,37 @@ struct MiniPerf {
     void report_in_row(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
                        const std::string &file_path = "./mini_perf_report.csv",
                        const std::string &delimiter = ",");
+
+    auto get_time_count() {
+        return std::chrono::duration_cast<TimeDurationType>(time_count);
+    }
+
+    void metrics_average(size_t iterations) {
+        if (iterations == 0) {
+            throw (std::invalid_argument("Iterations cannot be zero."));
+        }
+        int ptr = 0;
+        for (auto metric: mini_attribute_metrics) {
+            if (metric == MINI_TIME_COUNT) {
+                time_count /= (iterations * 1.0);
+            } else if (metric == MINI_MEMORY_COUNT) {
+                mini_attribute_count[ptr] /= iterations;
+            }
+            ptr += 1;
+        }
+
+        for (auto &metric: perf_attribute_count) {
+            metric /= iterations;
+        }
+    }
+
+    void add_custom_metric(const std::string &metric_name, const std::string &metric_value) {
+        custom_metrics[metric_name] = metric_value;
+    }
+
+    void remove_custom_metric(const std::string &metric_name) {
+        custom_metrics.erase(metric_name);
+    }
 };
 
 // Implementations -------------------------------------
@@ -247,6 +271,9 @@ void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_
     std::ofstream file;
     if (to_file) {
         file = std::ofstream(file_path, std::ios::app);
+        // print absolute path
+        auto abs_path_msg = "Log File Path: " + std::filesystem::absolute(file_path).string();
+        log_println(abs_path_msg, true, false, file);
     }
     int ptr = 0;
     // Report name
@@ -301,6 +328,9 @@ void MiniPerf<TimeDurationType>::report_in_row(const std::string &report_name, b
     std::ofstream file;
     if (to_file) {
         file = std::ofstream(file_path, std::ios::app);
+        // print absolute path
+        auto abs_path_msg = "Log File Path: " + std::filesystem::absolute(file_path).string();
+        log_println(abs_path_msg, true, false, file);
     }
     int ptr = 0;
 
