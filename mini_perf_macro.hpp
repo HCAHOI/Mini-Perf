@@ -3,7 +3,7 @@
 //
 #pragma once
 
-/// Macro for print_log file and line info in report.
+/// Macro for log_println file and line info in report.
 #define PerfReport(perf, report_name, to_file, to_stdout, file_path)              \
     if (to_stdout) {                                    \
         std::cout << "----------------------------------------" << std::endl;         \
@@ -24,3 +24,14 @@
         file << "----------------------------------------" << std::endl;   \
         file.close();                                                    \
     }
+
+/// Macro for report a collection of metrics in a row.
+#define PerfReportInRow(perf, report_name, to_file, to_stdout, file_path)              \
+    if (to_stdout) {                                    \
+        std::cout << "----------------------------------------" << std::endl;         \
+        std::cout << "Report at " <<  __FILE__ << ": Line " << __LINE__ << std::endl;     \
+    }                                                \
+    perf.report_in_row(report_name, to_file, to_stdout, file_path); \
+    if (to_stdout) {                                    \
+        std::cout << "----------------------------------------" << std::endl;         \
+    }                                                \

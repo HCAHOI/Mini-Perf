@@ -7,7 +7,7 @@ Mini Perf is a small Linux C/C++ program performance measurement tool. It can be
 ## TODO
 
 - [x] Basic functions
-- [ ] Export to CSV
+- [x] Export to CSV
 - [ ] Micro-benchmark
 - [ ] Mini flame graph
 
@@ -112,6 +112,8 @@ Cache Misses: 7912
 Cache References: 22050
 ----------------------------------------
 */
+// PerfReportInRow will report the data in a row, which can be easily read in software such as Excel.
+PerfReportInRow(perf, "Report test2", true, true, "./perf.csv");
 ```
 
 ## Notes

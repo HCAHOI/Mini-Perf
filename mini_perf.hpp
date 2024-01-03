@@ -4,7 +4,7 @@
 #include <vector>
 #include <chrono>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 #include "linux-perf-events.h"
 #include "mini_perf.hpp"
 #include "mini_perf_macro.hpp"
@@ -32,7 +32,7 @@ struct MiniPerf {
     std::vector<int> perf_attribute_metrics;
     std::vector<ull> perf_attribute_start;
     std::vector<ull> perf_attribute_count;
-    std::unordered_map<std::string, std::pair<ull, std::string>> custom_metrics;
+    std::map<std::string, std::string> custom_metrics;
 
     // Methods
     explicit MiniPerf(const std::vector<int> &mini_parameters = {MINI_TIME_COUNT},
@@ -47,8 +47,8 @@ struct MiniPerf {
 
     void stop();
 
-    void add_custom_metric(const std::string &metric_name, ull metric_value, const std::string& unit = "") {
-        custom_metrics[metric_name] = {metric_value, unit};
+    void add_custom_metric(const std::string &metric_name, const std::string &metric_value) {
+        custom_metrics[metric_name] = metric_value;
     }
 
     void remove_custom_metric(const std::string &metric_name) {
@@ -57,7 +57,12 @@ struct MiniPerf {
 
     void reset();
 
-    void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true, const std::string &file_path = "./mini_perf_report.log");
+    void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
+                const std::string &file_path = "./mini_perf_report.log");
+
+    void report_in_row(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
+                       const std::string &file_path = "./mini_perf_report.csv",
+                       const std::string &delimiter = ",");
 };
 
 // Implementations -------------------------------------
@@ -237,7 +242,8 @@ void MiniPerf<TimeDurationType>::reset() {
 }
 
 template<typename TimeDurationType>
-void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_file, bool to_stdout, const std::string &file_path) {
+void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_file, bool to_stdout,
+                                        const std::string &file_path) {
     std::ofstream file;
     if (to_file) {
         file = std::ofstream(file_path, std::ios::app);
@@ -245,11 +251,11 @@ void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_
     int ptr = 0;
     // Report name
     auto perf_name_msg = "Perf Name: " + perf_name;
-    print_log(perf_name_msg, to_stdout, to_file, file);
+    log_println(perf_name_msg, to_stdout, to_file, file);
     auto report_name_msg = "Report Name: " + report_name;
-    print_log(report_name_msg, to_stdout, to_file, file);
+    log_println(report_name_msg, to_stdout, to_file, file);
     auto report_time_msg = "Report Time: " + get_time();
-    print_log(report_time_msg, to_stdout, to_file, file);
+    log_println(report_time_msg, to_stdout, to_file, file);
     // Mini results
     ptr = 0;
     for (auto metric: mini_attribute_metrics) {
@@ -257,16 +263,15 @@ void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_
             auto duration = std::chrono::duration_cast<TimeDurationType>(time_count).count();
             auto msg =
                     get_mini_metric_name(metric) + ": " + std::to_string(duration) + get_time_unit<TimeDurationType>();
-            print_log(msg, to_stdout, to_file, file);
-        }
-        else if (metric == MINI_AVERAGE_IPC) {
+            log_println(msg, to_stdout, to_file, file);
+        } else if (metric == MINI_AVERAGE_IPC) {
             auto msg = get_mini_metric_name(metric) + ": " + std::to_string(average_ipc) +
                        get_mini_metric_unit(metric);
-            print_log(msg, to_stdout, to_file, file);
+            log_println(msg, to_stdout, to_file, file);
         } else {
             auto msg = get_mini_metric_name(metric) + ": " + std::to_string(mini_attribute_count[ptr]) +
                        get_mini_metric_unit(metric);
-            print_log(msg, to_stdout, to_file, file);
+            log_println(msg, to_stdout, to_file, file);
         }
         ptr += 1;
     }
@@ -275,14 +280,14 @@ void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_
     ptr = 0;
     for (auto metric: perf_attribute_metrics) {
         auto msg = get_perf_metric_name(metric) + ": " + std::to_string(perf_attribute_count[ptr]);
-        print_log(msg, to_stdout, to_file, file);
+        log_println(msg, to_stdout, to_file, file);
         ptr += 1;
     }
 
     // Custom metrics
-    for (auto& [metric_name, metric_value]: custom_metrics) {
-        auto msg = metric_name + ": " + std::to_string(metric_value.first) + " " + metric_value.second;
-        print_log(msg, to_stdout, to_file, file);
+    for (auto &[metric_name, metric_value]: custom_metrics) {
+        auto msg = metric_name + ": " + metric_value;
+        log_println(msg, to_stdout, to_file, file);
     }
 
     if (to_file) {
@@ -290,4 +295,99 @@ void MiniPerf<TimeDurationType>::report(const std::string &report_name, bool to_
     }
 }
 
+template<typename TimeDurationType>
+void MiniPerf<TimeDurationType>::report_in_row(const std::string &report_name, bool to_file, bool to_stdout,
+                                               const std::string &file_path, const std::string &delimiter) {
+    std::ofstream file;
+    if (to_file) {
+        file = std::ofstream(file_path, std::ios::app);
+    }
+    int ptr = 0;
 
+    // Print header if the file is empty
+    if (file.tellp() == 0) {
+        // Report info
+        {
+            auto perf_name_msg = "Perf Name" + delimiter;
+            log_print(perf_name_msg, to_stdout, to_file, file);
+            auto report_name_msg = "Report Name" + delimiter;
+            log_print(report_name_msg, to_stdout, to_file, file);
+            auto report_time_msg = "Report Time" + delimiter;
+            log_print(report_time_msg, to_stdout, to_file, file);
+        }
+        // Mini metrics
+        ptr = 0;
+        for (auto metric: mini_attribute_metrics) {
+            if (metric == MINI_TIME_COUNT) {
+                auto msg =
+                        get_mini_metric_name(metric) + "(" + get_time_unit<TimeDurationType>() + ")" + delimiter;
+                log_print(msg, to_stdout, to_file, file);
+            } else if (metric == MINI_AVERAGE_IPC) {
+                auto msg = get_mini_metric_name(metric) + delimiter;
+                log_print(msg, to_stdout, to_file, file);
+            } else {
+                auto msg = get_mini_metric_name(metric) + "(" + get_mini_metric_unit(metric) + ")" + delimiter;
+                log_print(msg, to_stdout, to_file, file);
+            }
+            ptr += 1;
+        }
+        // Perf metrics
+        ptr = 0;
+        for (auto metric: perf_attribute_metrics) {
+            auto msg = get_perf_metric_name(metric) + delimiter;
+            log_print(msg, to_stdout, to_file, file);
+            ptr += 1;
+        }
+        // Custom metrics
+        for (auto &[metric_name, _]: custom_metrics) {
+            auto msg = metric_name + delimiter;
+            log_print(msg, to_stdout, to_file, file);
+        }
+        // End of metrics
+        log_println("", to_stdout, to_file, file);
+    }
+
+    // Report info
+    {
+        auto perf_name_msg = perf_name + delimiter;
+        log_print(perf_name_msg, to_stdout, to_file, file);
+        auto report_name_msg = report_name + delimiter;
+        log_print(report_name_msg, to_stdout, to_file, file);
+        auto report_time_msg = get_time() + delimiter;
+        log_print(report_time_msg, to_stdout, to_file, file);
+    }
+    // Mini results
+    ptr = 0;
+    for (auto metric: mini_attribute_metrics) {
+        if (metric == MINI_TIME_COUNT) {
+            auto duration = std::chrono::duration_cast<TimeDurationType>(time_count).count();
+            auto msg = std::to_string(duration) + delimiter;
+            log_print(msg, to_stdout, to_file, file);
+        } else if (metric == MINI_AVERAGE_IPC) {
+            auto msg = std::to_string(average_ipc)+ delimiter;
+            log_print(msg, to_stdout, to_file, file);
+        } else {
+            auto msg = std::to_string(mini_attribute_count[ptr]) + delimiter;
+            log_print(msg, to_stdout, to_file, file);
+        }
+        ptr += 1;
+    }
+    // Perf results
+    ptr = 0;
+    for (auto metric: perf_attribute_metrics) {
+        auto msg = std::to_string(perf_attribute_count[ptr]) + delimiter;
+        log_print(msg, to_stdout, to_file, file);
+        ptr += 1;
+    }
+    // Custom metrics
+    for (auto &[metric_name, metric_value]: custom_metrics) {
+        auto msg = metric_value + delimiter;
+        log_print(msg, to_stdout, to_file, file);
+    }
+    // End of metrics
+    log_println("", to_stdout, to_file, file);
+
+    if (to_file) {
+        file.close();
+    }
+}

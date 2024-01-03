@@ -33,24 +33,24 @@ std::string get_time() {
 template<typename T>
 std::string get_time_unit(int _ = 0) {
     if constexpr (std::is_same_v<T, std::chrono::hours>) {
-        return " h";
+        return "h";
     } else if constexpr (std::is_same_v<T, std::chrono::minutes>) {
-        return " min";
+        return "min";
     } else if constexpr (std::is_same_v<T, std::chrono::seconds>) {
-        return " s";
+        return "s";
     } else if constexpr (std::is_same_v<T, std::chrono::milliseconds>) {
-        return " ms";
+        return "ms";
     } else if constexpr (std::is_same_v<T, std::chrono::microseconds>) {
-        return " us";
+        return "us";
     } else if constexpr (std::is_same_v<T, std::chrono::nanoseconds>) {
-        return " ns";
+        return "ns";
     } else {
         static_assert(false, "Unsupported duration type");
         return "";
     }
 }
 
-void print_log(const std::string &msg, bool to_stdout, bool to_file, std::ofstream &file) {
+void log_println(const std::string &msg, bool to_stdout, bool to_file, std::ofstream &file) {
     if (to_stdout) {
         std::cout << msg << std::endl;
     }
@@ -59,20 +59,29 @@ void print_log(const std::string &msg, bool to_stdout, bool to_file, std::ofstre
     }
 }
 
+void log_print(const std::string &msg, bool to_stdout, bool to_file, std::ofstream &file) {
+    if (to_stdout) {
+        std::cout << msg ;
+    }
+    if (to_file) {
+        file << msg;
+    }
+}
+
 std::string get_mini_metric_unit(int metric) {
     if (metric == MINI_TIME_COUNT) {
         std::cerr << "Use get_time_unit() instead." << std::endl;
         return "";
     } else if (metric == MINI_MEMORY_COUNT) {
-        return " KB";
+        return "KB";
     } else if (metric == MINI_MEMORY_TOTAL) {
-        return " KB";
+        return "KB";
     } else if (metric == MINI_CACHE_MISS_RATE) {
-        return " %";
+        return "%";
     } else if (metric == MINI_BRANCH_MISS_RATE) {
-        return " %";
+        return "%";
     } else if (metric == MINI_CPU_UTILIZATION) {
-        return " %";
+        return "%";
     } else {
         return "";
     }
