@@ -45,7 +45,7 @@ std::string get_time_unit(int _ = 0) {
     } else if constexpr (std::is_same_v<T, std::chrono::nanoseconds>) {
         return "ns";
     } else {
-        static_assert(false, "Unsupported duration type");
+        std::cerr << "Unsupported time type." << std::endl;
         return "";
     }
 }

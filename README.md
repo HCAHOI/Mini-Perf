@@ -2,14 +2,13 @@
 
 ## Introduction
 
-Mini Perf is a small Linux C/C++ program performance measurement tool. It can be easily used after including the header file. 
+Mini Perf is a small Linux C/C++ program performance measurement tool. It can be easily used. 
 
 ## TODO
 
 - [x] Basic functions
 - [x] Export to CSV
 - [x] Micro-benchmark
-- [ ] Mini flame graph
 
 ## Supported Metrics
 

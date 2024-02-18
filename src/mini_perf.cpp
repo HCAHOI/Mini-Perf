@@ -1,95 +1,6 @@
-#pragma once
+#include "../include/mini_perf.hpp"
 
-#include <iostream>
-#include <vector>
-#include <chrono>
-#include <fstream>
-#include <map>
-#include <filesystem>
-#include "linux-perf-events.h"
-#include "mini_perf.hpp"
-#include "mini_perf_macro.hpp"
-#include "utilities.hpp"
 
-using ull = unsigned long long;
-using ClockType = typename std::conditional<std::chrono::high_resolution_clock::is_steady,
-        std::chrono::high_resolution_clock, std::chrono::steady_clock>::type;
-using ClockTimePointType = std::chrono::steady_clock::time_point;
-using ClockDurationType = std::chrono::steady_clock::duration;
-
-template<typename TimeDurationType>
-struct MiniPerf {
-    const std::string perf_name;
-
-    // Variables
-    ClockTimePointType start_time;
-    ClockDurationType time_count{};
-    double average_ipc{};
-    std::tuple<int, int, double> cpu_usage; // user, system, usage
-    std::vector<int> mini_attribute_metrics;
-    std::vector<ull> mini_attribute_start;
-    std::vector<ull> mini_attribute_count;
-    LinuxEvents<> perf_events;
-    std::vector<int> perf_attribute_metrics;
-    std::vector<ull> perf_attribute_start;
-    std::vector<ull> perf_attribute_count;
-    std::map<std::string, std::string> custom_metrics;
-
-    // Methods
-    explicit MiniPerf(const std::vector<int> &mini_parameters = {MINI_TIME_COUNT},
-                      const std::vector<int> &perf_parameters = {},
-                      std::string perf_name = "Mini Perf");
-
-    MiniPerf(const MiniPerf &) = delete;
-
-    MiniPerf(MiniPerf &&) = delete;
-
-    void start();
-
-    void stop();
-
-    void reset();
-
-    void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
-                const std::string &file_path = "./mini_perf_report.log");
-
-    void report_in_row(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
-                       const std::string &file_path = "./mini_perf_report.csv",
-                       const std::string &delimiter = ",");
-
-    auto get_time_count() {
-        return std::chrono::duration_cast<TimeDurationType>(time_count);
-    }
-
-    void metrics_average(size_t iterations) {
-        if (iterations == 0) {
-            throw (std::invalid_argument("Iterations cannot be zero."));
-        }
-        int ptr = 0;
-        for (auto metric: mini_attribute_metrics) {
-            if (metric == MINI_TIME_COUNT) {
-                time_count /= (iterations * 1.0);
-            } else if (metric == MINI_MEMORY_COUNT) {
-                mini_attribute_count[ptr] /= iterations;
-            }
-            ptr += 1;
-        }
-
-        for (auto &metric: perf_attribute_count) {
-            metric /= iterations;
-        }
-    }
-
-    void add_custom_metric(const std::string &metric_name, const std::string &metric_value) {
-        custom_metrics[metric_name] = metric_value;
-    }
-
-    void remove_custom_metric(const std::string &metric_name) {
-        custom_metrics.erase(metric_name);
-    }
-};
-
-// Implementations -------------------------------------
 template<typename TimeDurationType>
 MiniPerf<TimeDurationType>::MiniPerf(const std::vector<int> &mini_parameters, const std::vector<int> &perf_parameters,
                                      std::string perf_name): perf_name(std::move(perf_name)),
@@ -420,4 +331,34 @@ void MiniPerf<TimeDurationType>::report_in_row(const std::string &report_name, b
     if (to_file) {
         file.close();
     }
+}
+
+template<typename TimeDurationType>
+void MiniPerf<TimeDurationType>::metrics_average(size_t iterations) {
+    if (iterations == 0) {
+        throw (std::invalid_argument("Iterations cannot be zero."));
+    }
+    int ptr = 0;
+    for (auto metric: mini_attribute_metrics) {
+        if (metric == MINI_TIME_COUNT) {
+            time_count /= (iterations * 1.0);
+        } else if (metric == MINI_MEMORY_COUNT) {
+            mini_attribute_count[ptr] /= iterations;
+        }
+        ptr += 1;
+    }
+
+    for (auto &metric: perf_attribute_count) {
+        metric /= iterations;
+    }
+}
+
+template<typename TimeDurationType>
+void MiniPerf<TimeDurationType>::add_custom_metric(const std::string &metric_name, const std::string &metric_value) {
+    custom_metrics[metric_name] = metric_value;
+}
+
+template<typename TimeDurationType>
+void MiniPerf<TimeDurationType>::remove_custom_metric(const std::string &metric_name) {
+    custom_metrics.erase(metric_name);
 }
