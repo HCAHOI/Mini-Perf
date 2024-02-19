@@ -76,17 +76,24 @@ namespace mperf {
     /// @brief Tiniest performance timer, which measures the time duration of a code block. Reset after each measurement.
     /// @tparam TimeDurationType 
     template<typename TimeDurationType = std::chrono::microseconds>
-    struct Timer: public MiniPerf<std::chrono::microseconds> {
+    class Timer: public MiniPerf<std::chrono::microseconds> {
+        std::string report_name;
+
+        public:
         Timer(): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, "Timer") {}
         Timer(std::string timer_name): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, std::move(timer_name)) {}
 
-        void start() {
+        void s() {
+            this->report_name = "Timer Report";
             MiniPerf<TimeDurationType>::start();
         }
+        void s(std::string report_name) {
+            this->report_name = std::move(report_name);
+        }
 
-        void stop() {
+        void e() {
             MiniPerf<TimeDurationType>::stop();
-            MiniPerf<TimeDurationType>::report(perf_name + " Report", false, true);
+            MiniPerf<TimeDurationType>::report(report_name, false, true);
             MiniPerf<TimeDurationType>::reset();
         }
 

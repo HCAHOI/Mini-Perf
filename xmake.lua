@@ -1,20 +1,12 @@
 add_rules("mode.release")
 
-target("mini_perf_test")
+target("mini_perf")
     set_languages("c++20")
     set_optimize("fastest")
-    set_kind("binary")
+    set_kind("static")
     add_files("src/*.cpp")
     add_includedirs("include")
     add_headerfiles("include/*")
-
--- target("mini_perf")
---     set_languages("c++20")
---     set_optimize("fastest")
---     set_kind("static")
---     add_files("src/*.cpp")
---     add_includedirs("include")
---     add_headerfiles("include/*")
 
 
 --

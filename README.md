@@ -81,9 +81,9 @@ The Mini Timer has been simplified as much as possible to minimize the complexit
 
 mperf::Timer timer;   // or mperf::Timer timer{timer_name}
 
-timer.start();
+timer.s();  // Timer start.
 // do something
-timer.stop();
+timer.e();  // Timer end.
 
 ```
 
