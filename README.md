@@ -9,8 +9,8 @@ Mini Perf is a small Linux C++ program performance measurement tool. It can be e
 - [x] Basic functions
 - [x] Export to CSV
 - [x] Benchmark
-- [] Quick Timer
-- [] Optimize Benchmark
+- [x] Quick Timer
+- [x] Optimize Benchmark
 
 ## Supported Metrics
 
@@ -66,14 +66,34 @@ Mini Perf is a small Linux C++ program performance measurement tool. It can be e
 * std::chrono::minutes
 * std::chrono::hours
 
+## Install
+
+Mini Perf recommends using Xmake for compilation and linking, and we provide build scripts for make and cmake in the `other_install` directory. Note that Mini Perf requires c++20 or higher. 
+
 ## How to Use
+
+### Mini Timer
+
+The Mini Timer has been simplified as much as possible to minimize the complexity of using it.
+
+```cpp
+#include <mini_perf.hpp>
+
+mperf::Timer timer;   // or mperf::Timer timer{timer_name}
+
+timer.start();
+// do something
+timer.stop();
+
+```
+
 
 ### Mini Perf
 
 ```cpp
 #include "mini_perf.hpp"
 
-// ...
+using namespace mperf;
 
 // Define metrics to be measured.
 std::vector<int> mini_metrics = {MINI_TIME_COUNT, MINI_AVERAGE_IPC, MINI_CPU_UTILIZATION , MINI_CACHE_MISS_RATE};
@@ -102,7 +122,7 @@ PerfReport(perf, "Report test2", true, true, "./perf.log");
 /*
 ----------------------------------------
 Report at /home/hoi/projects/test/main.cpp: Line 58
-Perf Name: Mini Perf 1
+Name: Mini Perf 1
 Report Name: Report test2
 Report Time: 2024/1/2 20:50:41
 Running Time: 10001872 us
@@ -115,35 +135,35 @@ Cache Misses: 7912
 Cache References: 22050
 ----------------------------------------
 */
-// PerfReportInRow will report the data in a row, which can be easily read in software such as Excel.
+// PerfReportInRow will report the data in table format.
 PerfReportInRow(perf, "Report test2", true, true, "./perf.csv");
 ```
 
-### Micro-Benchmark
+### Mini-Benchmark
 
-Micro-benchmark will execute the code between `MicroBenchmarkMain` and `MicroBenchmarkEnd` enough times(less than `max_running_time`) and output the average result.
+Mini-benchmark will execute the code between `MiniUnitStart` and `MiniUnitEnd` enough times(less than `max_running_time`) and output the average result.
 
 ```cpp
 #include "mini_perf.hpp"
 #include "mini_perf_macro.hpp"
 
-// MicroBenchmarkInit(perf_name, mini_metrics, perf_metrics, max_running_time), note that the unit of the 'max_running_time' is second.
-MicroBenchmarkInit("Micro Test", {MINI_TIME_COUNT}, {}, 1)
+// MiniInit(perf_name, mini_metrics, perf_metrics, max_running_time), note that the unit of the 'max_running_time' is second.
+MiniInit("Micro Test", {MINI_TIME_COUNT}, {}, 1)
     // Initialization
     float arr[N];
-MicroBenchmarkUnitStart
+MiniUnitStart
     // Main part to be measured 
     for(size_t i = 0; i < N; i++) {
         arr[i] = 1.0f;
     }
-// MicroBenchmarkUnitEnd(report_name, report_file_path)
-MicroBenchmarkUnitEnd("Test report1", "micro_test.csv")
-MicroBenchmarkUnitStart
+// MiniUnitEnd(report_name, report_file_path)
+MiniUnitEnd("Test report1", "micro_test.csv")
+MiniUnitStart
     for(size_t i = 0; i < N; i++) {
         arr[i] = 0.0f;
     }
-MicroBenchmarkUnitEnd("Test report2", "micro_test.csv")
-MicroBenchmarkEnd
+MiniUnitEnd("Test report2", "micro_test.csv")
+MiniEnd
 ```
 
 ## Notes

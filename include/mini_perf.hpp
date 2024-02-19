@@ -360,7 +360,7 @@ namespace mperf {
         if (file.tellp() == 0) {
             // Report info
             {
-                auto perf_name_msg = "Perf Name" + delimiter;
+                auto perf_name_msg = "Name" + delimiter;
                 log_print(perf_name_msg, to_stdout, to_file, file);
                 auto report_name_msg = "Report Name" + delimiter;
                 log_print(report_name_msg, to_stdout, to_file, file);

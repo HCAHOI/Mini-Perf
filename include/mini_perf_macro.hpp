@@ -54,7 +54,7 @@
             perf.start();
 
 
-#define MiniUnitEnd(report_name, report_path) \
+#define MiniUnitEnd(report_name, tofile, report_path) \
             perf.stop();                            \
             cur_time = perf.get_time_count();  \
             iterations += 1;          \
@@ -62,7 +62,7 @@
         }                \
         perf.metrics_average(iterations);                         \
         perf.add_custom_metric("Iterations", std::to_string(iterations)); \
-        PerfReport(perf, report_name, false, true, report_path)    \
+        PerfReportInRow(perf, report_name, tofile, true, report_path)    \
         perf.reset(); \
     }                                      \
 
