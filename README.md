@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Mini Perf is a small Linux C/C++ program performance measurement tool. It can be easily used. 
+Mini Perf is a small Linux C++ program performance measurement tool. It can be easily used. 
 
 ## TODO
 
@@ -123,18 +123,25 @@ Micro-benchmark will execute the code between `MicroBenchmarkMain` and `MicroBen
 
 ```cpp
 #include "mini_perf.hpp"
+#include "mini_perf_macro.hpp"
 
 // MicroBenchmarkInit(perf_name, mini_metrics, perf_metrics, max_running_time), note that the unit of the 'max_running_time' is second.
-MicroBenchmarkInit("Micro Test", mini_metrics, perf_metrics, 5)
+MicroBenchmarkInit("Micro Test", {MINI_TIME_COUNT}, {}, 1)
     // Initialization
-    std::array<int, 100000> arr{};
-MicroBenchmarkMain
+    float arr[N];
+MicroBenchmarkUnitStart
     // Main part to be measured 
-    for (int i = 0; i < 100000; ++i) {
-        arr[i] = i;
+    for(size_t i = 0; i < N; i++) {
+        arr[i] = 1.0f;
     }
-// MicroBenchmarkEnd(report_name, report_file_path)
-MicroBenchmarkEnd("Test report", "/home/hoi/ClionProjects/cppTest/perf.log")
+// MicroBenchmarkUnitEnd(report_name, report_file_path)
+MicroBenchmarkUnitEnd("Test report1", "micro_test.csv")
+MicroBenchmarkUnitStart
+    for(size_t i = 0; i < N; i++) {
+        arr[i] = 0.0f;
+    }
+MicroBenchmarkUnitEnd("Test report2", "micro_test.csv")
+MicroBenchmarkEnd
 ```
 
 ## Notes

@@ -38,8 +38,8 @@
 
 
 /// Macro for Mini Perf's Micro Benchmark. The initialization part should be done between the
-/// MicroBenchmarkStart and MicroBenchmarkMain. The main part that you want to benchmark should
-/// be done between the MicroBenchmarkMain and MicroBenchmarkEnd. max_iteration_time's unit is second.
+/// MicroBenchmarkInit and MicroBenchmarkUnitStart. The main part that you want to benchmark should
+/// be done between the MicroBenchmarkUnitStart and MicroBenchmarkUnitEnd. max_iteration_time's unit is second.
 #define MicroBenchmarkInit(perf_name, mini_metrics, perf_metrics, max_time)  \
 {                                      \
     auto perf = MiniPerf<std::chrono::microseconds>{mini_metrics, perf_metrics, perf_name}; \
@@ -48,20 +48,23 @@
     size_t iterations = 0;                      \
 
 
-#define MicroBenchmarkMain          \
+#define MicroBenchmarkUnitStart          \
+    {                                      \        
         while(true) {                   \
             perf.start();
 
 
-
-#define MicroBenchmarkEnd(report_name, report_path) \
+#define MicroBenchmarkUnitEnd(report_name, report_path) \
             perf.stop();                            \
             cur_time = perf.get_time_count();  \
             iterations += 1;          \
             if (cur_time > max_iteration_time) break; \
         }                \
-    perf.metrics_average(iterations);                         \
-    auto iteration_msg = "Micro Benchmark Iterations: " + std::to_string(iterations);      \
-    std::cout << iteration_msg << std::endl;    \
-    PerfReport(perf, report_name, false, true, report_path)    \
-}
+        perf.metrics_average(iterations);                         \
+        auto iteration_msg = "Micro Benchmark Iterations: " + std::to_string(iterations);      \
+        std::cout << iteration_msg << std::endl;    \
+        PerfReport(perf, report_name, false, true, report_path)    \
+        perf.reset(); \
+    }                                      \
+
+#define MicroBenchmarkEnd }
