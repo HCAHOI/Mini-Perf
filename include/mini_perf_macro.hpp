@@ -37,34 +37,34 @@
     }                                                                                  \
 
 
-/// Macro for Mini Perf's Micro Benchmark. The initialization part should be done between the
-/// MicroBenchmarkInit and MicroBenchmarkUnitStart. The main part that you want to benchmark should
-/// be done between the MicroBenchmarkUnitStart and MicroBenchmarkUnitEnd. max_iteration_time's unit is second.
-#define MicroBenchmarkInit(perf_name, mini_metrics, perf_metrics, max_time)  \
+/// Macro for Mini Perf's Unit Benchmark. The initialization part should be done between the
+/// MiniInit and MiniEnd. The main part that you want to benchmark should
+/// be done between the MiniUnitStart and MiniUnitEnd. max_iteration_time's unit is second.
+#define MiniInit(perf_name, mini_metrics, perf_metrics, max_time)  \
 {                                      \
-    auto perf = MiniPerf<std::chrono::microseconds>{mini_metrics, perf_metrics, perf_name}; \
+    auto perf = mperf::MiniPerf<std::chrono::microseconds>{mini_metrics, perf_metrics, perf_name}; \
     std::chrono::microseconds cur_time = std::chrono::microseconds{0};     \
     std::chrono::microseconds max_iteration_time = std::chrono::microseconds{max_time * 1000000}; \
     size_t iterations = 0;                      \
 
 
-#define MicroBenchmarkUnitStart          \
+#define MiniUnitStart          \
     {                                      \        
         while(true) {                   \
             perf.start();
 
 
-#define MicroBenchmarkUnitEnd(report_name, report_path) \
+#define MiniUnitEnd(report_name, report_path) \
             perf.stop();                            \
             cur_time = perf.get_time_count();  \
             iterations += 1;          \
             if (cur_time > max_iteration_time) break; \
         }                \
         perf.metrics_average(iterations);                         \
-        auto iteration_msg = "Micro Benchmark Iterations: " + std::to_string(iterations);      \
-        std::cout << iteration_msg << std::endl;    \
+        perf.add_custom_metric("Iterations", std::to_string(iterations)); \
         PerfReport(perf, report_name, false, true, report_path)    \
         perf.reset(); \
     }                                      \
 
-#define MicroBenchmarkEnd }
+
+#define MiniEnd }

@@ -1,13 +1,21 @@
 add_rules("mode.release")
 
-target("mini_perf")
+target("mini_perf_test")
     set_languages("c++20")
     set_optimize("fastest")
-    set_kind("static")
+    set_kind("binary")
     add_files("src/*.cpp")
     add_includedirs("include")
     add_headerfiles("include/*")
-    add_packages("mini_perf")
+
+-- target("mini_perf")
+--     set_languages("c++20")
+--     set_optimize("fastest")
+--     set_kind("static")
+--     add_files("src/*.cpp")
+--     add_includedirs("include")
+--     add_headerfiles("include/*")
+
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

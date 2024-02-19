@@ -8,7 +8,9 @@ Mini Perf is a small Linux C++ program performance measurement tool. It can be e
 
 - [x] Basic functions
 - [x] Export to CSV
-- [x] Micro-benchmark
+- [x] Benchmark
+- [] Quick Timer
+- [] Optimize Benchmark
 
 ## Supported Metrics
 
@@ -78,7 +80,7 @@ std::vector<int> mini_metrics = {MINI_TIME_COUNT, MINI_AVERAGE_IPC, MINI_CPU_UTI
 std::vector<int> perf_metrics = {PERF_COUNT_HW_CPU_CYCLES, PERF_COUNT_HW_INSTRUCTIONS, PERF_COUNT_HW_CACHE_MISSES, PERF_COUNT_HW_CACHE_REFERENCES};
 
 // MiniPerf<TimeType>(mini_parameters, perf_parameters, perf_name);
-MiniPerf<std::chrono::microseconds> perf{mini_metrics, perf_metrics, "Mini Perf 1"};
+mperf::MiniPerf<std::chrono::microseconds> perf{mini_metrics, perf_metrics, "Mini Perf 1"};
 
 perf.start();
 // do something...
