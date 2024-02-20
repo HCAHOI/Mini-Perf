@@ -6,6 +6,8 @@
 #include <fstream>
 #include <map>
 #include <filesystem>
+
+
 #include "linux-perf-events.h"
 #include "mini_perf.hpp"
 #include "mini_perf_macro.hpp"
@@ -83,12 +85,14 @@ namespace mperf {
         Timer(): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, "Timer") {}
         Timer(std::string timer_name): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, std::move(timer_name)) {}
 
+        // For Quick Typing
         void s() {
             this->report_name = "Timer Report";
             MiniPerf<TimeDurationType>::start();
         }
         void s(std::string report_name) {
             this->report_name = std::move(report_name);
+            MiniPerf<TimeDurationType>::start();
         }
 
         void e() {
@@ -97,8 +101,23 @@ namespace mperf {
             MiniPerf<TimeDurationType>::reset();
         }
 
+        // For AI Completion
+        void start() {
+            this->report_name = "Timer Report";
+            MiniPerf<TimeDurationType>::start();
+        }
+        void start(std::string report_name) {
+            this->report_name = std::move(report_name);
+            MiniPerf<TimeDurationType>::start();
+        }
+
+        void end() {
+            MiniPerf<TimeDurationType>::stop();
+            MiniPerf<TimeDurationType>::report(report_name, false, true);
+            MiniPerf<TimeDurationType>::reset();
+        }
+
         // Delete other methods
-        
         void reset() = delete;
 
         void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
