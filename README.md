@@ -59,7 +59,7 @@ Mini Perf is a small Linux C++ program performance measurement tool. It can be e
 
 ### Supported Duration Type
 
-*  std::chrono::nanoseconds
+* std::chrono::nanoseconds
 * std::chrono::microseconds
 * std::chrono::milliseconds
 * std::chrono::seconds
@@ -68,25 +68,9 @@ Mini Perf is a small Linux C++ program performance measurement tool. It can be e
 
 ## Install
 
-Mini Perf recommends using Xmake for compilation and linking, and we provide build scripts for make and cmake in the `other_install` directory. Note that Mini Perf requires c++20 or higher. 
+Mini Perf recommends using Xmake for compilation and linking, and we provide cmake build script. Note that Mini Perf requires c++20 or higher. 
 
 ## How to Use
-
-### Mini Timer
-
-The Mini Timer has been simplified as much as possible to minimize the complexity of using it.
-
-```cpp
-#include <mini_perf.hpp>
-
-mperf::Timer timer;   // or mperf::Timer timer{timer_name}
-
-timer.s();  // Timer start.
-// do something
-timer.e();  // Timer end.
-
-```
-
 
 ### Mini Perf
 

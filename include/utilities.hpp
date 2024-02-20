@@ -2,8 +2,12 @@
 
 #include <iostream>
 #include <chrono>
+#include <tuple>
 #include <type_traits>
 #include <linux/perf_event.h>
+#include <string_view>
+#include <fstream>
+#include <unistd.h>
 
 namespace mperf {
     const size_t MINI_ATTRIBUTE_MAX = 6;    // Do not forget to change this when adding new mini attributes.
@@ -51,7 +55,7 @@ namespace mperf {
         }
     }
 
-    void log_println(const std::string &msg, bool to_stdout, bool to_file, std::ofstream &file) {
+    void log_println(std::string_view msg, bool to_stdout, bool to_file, std::ofstream &file) {
         if (to_stdout) {
             std::cout << msg << std::endl;
         }
@@ -60,7 +64,7 @@ namespace mperf {
         }
     }
 
-    void log_print(const std::string &msg, bool to_stdout, bool to_file, std::ofstream &file) {
+    void log_print(std::string_view msg, bool to_stdout, bool to_file, std::ofstream &file) {
         if (to_stdout) {
             std::cout << msg ;
         }

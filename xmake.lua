@@ -4,12 +4,34 @@ target("mini_perf")
     set_languages("c++20")
     set_optimize("fastest")
     set_kind("static")
-    add_files("src/*.cpp")
-    add_includedirs("include")
+    add_files("src/*.cpp") 
+    add_includedirs("include") 
     add_headerfiles("include/*")
 
+target("mini_perf_sample")
+    set_languages("c++20")
+    set_optimize("fastest")
+    set_kind("binary")
+    add_files("sample/mini_perf_sample.cpp") 
+    add_includedirs("include") 
+    add_headerfiles("include/*")
+ 
+target("mini_perf_macro_sample")
+    set_languages("c++20")
+    set_optimize("fastest")
+    set_kind("binary")
+    add_files("sample/mini_perf_macro_sample.cpp")  
+    add_includedirs("include") 
+    add_headerfiles("include/*")
 
---
+target("mini_benchmark_sample")
+    set_languages("c++20")
+    set_optimize("fastest")
+    set_kind("binary")
+    add_files("sample/mini_benchmark_sample.cpp")  
+    add_includedirs("include") 
+    add_headerfiles("include/*")
+    
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
 -- ## FAQ

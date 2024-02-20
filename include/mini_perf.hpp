@@ -7,7 +7,6 @@
 #include <map>
 #include <filesystem>
 
-
 #include "linux-perf-events.h"
 #include "mini_perf.hpp"
 #include "mini_perf_macro.hpp"
@@ -73,69 +72,6 @@ namespace mperf {
 
         void remove_custom_metric(const std::string &metric_name);
     };
-
-
-    /// @brief Tiniest performance timer, which measures the time duration of a code block. Reset after each measurement.
-    /// @tparam TimeDurationType 
-    template<typename TimeDurationType = std::chrono::microseconds>
-    class Timer: public MiniPerf<std::chrono::microseconds> {
-        std::string report_name;
-
-        public:
-        Timer(): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, "Timer") {}
-        Timer(std::string timer_name): MiniPerf<TimeDurationType>({MINI_TIME_COUNT}, {}, std::move(timer_name)) {}
-
-        // For Quick Typing
-        void s() {
-            this->report_name = "Timer Report";
-            MiniPerf<TimeDurationType>::start();
-        }
-        void s(std::string report_name) {
-            this->report_name = std::move(report_name);
-            MiniPerf<TimeDurationType>::start();
-        }
-
-        void e() {
-            MiniPerf<TimeDurationType>::stop();
-            MiniPerf<TimeDurationType>::report(report_name, false, true);
-            MiniPerf<TimeDurationType>::reset();
-        }
-
-        // For AI Completion
-        void start() {
-            this->report_name = "Timer Report";
-            MiniPerf<TimeDurationType>::start();
-        }
-        void start(std::string report_name) {
-            this->report_name = std::move(report_name);
-            MiniPerf<TimeDurationType>::start();
-        }
-
-        void end() {
-            MiniPerf<TimeDurationType>::stop();
-            MiniPerf<TimeDurationType>::report(report_name, false, true);
-            MiniPerf<TimeDurationType>::reset();
-        }
-
-        // Delete other methods
-        void reset() = delete;
-
-        void report(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
-                    const std::string &file_path = "./mini_perf_report.log") = delete;
-
-        void report_in_row(const std::string &report_name = "Mini-Perf Report", bool to_file = false, bool to_stdout = true,
-                        const std::string &file_path = "./mini_perf_report.csv",
-                        const std::string &delimiter = ",") = delete;
-
-        auto get_time_count() = delete;
-
-        void metrics_average(size_t iterations) = delete;
-
-        void add_custom_metric(const std::string &metric_name, const std::string &metric_value) = delete;
-
-        void remove_custom_metric(const std::string &metric_name) = delete;
-    };
-
 
     // Implementations
     template<typename TimeDurationType>
